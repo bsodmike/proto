@@ -14,6 +14,21 @@ enum close_state {
   close_state_dispute = 3;
 }
 
+/* general */
+
+message empty {}
+
+message gateway_success_resp {
+  bytes resp = 1;
+  bytes details = 2;
+}
+
+message gateway_error_resp {
+  bytes error = 1;
+  bytes details = 2;
+}
+
+
 /* txn submit and status */
 
 enum txn_status {
@@ -71,8 +86,10 @@ message gateway_resp_v1 {
     gateway_config_resp_v1 config_resp = 8;
     gateway_config_update_streamed_resp_v1 config_update_streamed_resp = 9;
     gateway_validators_resp_v1 validators_resp = 12;
-    gateway_submit_txn_resp_v1 submit_txn_resp = 13;
-    gateway_query_txn_resp_v1 query_txn_resp = 14;
+    gateway_success_resp success_resp = 13;
+    gateway_error_resp error_resp = 14;
+    gateway_submit_txn_resp_v1 submit_txn_resp = 15;
+    gateway_query_txn_resp_v1 query_txn_resp = 16;
   }
   uint64 block_time = 10;
   uint64 block_age = 11;
