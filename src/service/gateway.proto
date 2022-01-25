@@ -5,6 +5,7 @@ package helium;
 import "blockchain_state_channel_v1.proto";
 import "blockchain_txn_state_channel_close_v1.proto";
 import "blockchain_txn_vars_v1.proto";
+import "blockchain_txn.proto";
 
 enum close_state {
   close_state_closable = 0;
@@ -12,6 +13,40 @@ enum close_state {
   close_state_closed = 2;
   close_state_dispute = 3;
 }
+
+/* txn submit and status */
+
+enum txn_status {
+  pending = 1;
+  cleared = 2;
+  failed = 3;
+}
+
+message acceptor {
+  uint64 height = 1;
+  uint32 queue_pos = 2;
+  bytes pub_key = 3;
+}
+
+message rejector {
+  uint64 height = 1;
+  bytes reason = 2;
+  bytes pub_key = 3;
+}
+
+message gateway_submit_txn_req_v1 { blockchain_txn txn = 1; }
+message gateway_submit_txn_resp_v1 { bytes key = 1;
+  routing_address validator = 2;
+}
+
+message gateway_query_txn_req_v1 { bytes key = 1; }
+message gateway_query_txn_resp_v1 {
+  txn_status status = 1;
+  repeated acceptor acceptors = 2;
+  repeated rejector rejectors = 3;
+  bytes details = 4;
+}
+
 
 /* general */
 
@@ -36,6 +71,8 @@ message gateway_resp_v1 {
     gateway_config_resp_v1 config_resp = 8;
     gateway_config_update_streamed_resp_v1 config_update_streamed_resp = 9;
     gateway_validators_resp_v1 validators_resp = 12;
+    gateway_submit_txn_resp_v1 submit_txn_resp = 13;
+    gateway_query_txn_resp_v1 query_txn_resp = 14;
   }
   uint64 block_time = 10;
   uint64 block_age = 11;
@@ -117,4 +154,6 @@ service gateway {
   rpc config_update(gateway_config_update_req_v1)
       returns (stream gateway_resp_v1);
   rpc validators(gateway_validators_req_v1) returns (gateway_resp_v1);
+  rpc submit_txn(gateway_submit_txn_req_v1) returns (gateway_resp_v1);
+  rpc query_txn(gateway_query_txn_req_v1) returns (gateway_resp_v1);
 }
